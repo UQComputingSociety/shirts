@@ -1,0 +1,14 @@
+body {
+	background-image: url("bg.png");
+	background-size: cover;
+}
+.container{
+	background-color: white;
+	padding: 2em;
+}
+.radio {
+	margin-left: 20px;
+}
+.mockup{
+	width: 100%;
+}
