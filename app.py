@@ -135,7 +135,7 @@ if __name__ == "__main__":
     worker_thread = Thread(target=order_processing)
     worker_thread.start()
 
-    app.run(debug=True)
+    app.run(port=4321)
 
     queue.put(None)
     worker_thread.join()

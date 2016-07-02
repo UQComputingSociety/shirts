@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>UQCS Shirts 2016</title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
@@ -44,6 +45,17 @@
         <p class="alert alert-danger">${error}</p>
         % endfor
         <div class="form-group">
+          ${form.shirt_style.label}
+          % for sub in form.shirt_style:
+          <div class="radio">
+            ${sub} ${sub.label}
+          </div>
+          % endfor
+        </div>
+        %for error in form.shirt_style.errors:
+        <p class="alert alert-danger">${error}</p>
+        %endfor
+        <div class="form-group">
           ${form.shirt_size.label}
           % for sub in form.shirt_size:
           <div class="radio">
@@ -53,17 +65,6 @@
           <span class="help-block">Note: Women's sizes only go up to 2XL</span>
         </div>
         %for error in form.shirt_size.errors:
-        <p class="alert alert-danger">${error}</p>
-        %endfor
-        <div class="form-group">
-          ${form.shirt_style.label}
-          % for sub in form.shirt_style:
-          <div class="radio">
-            ${sub} ${sub.label}
-          </div>
-          % endfor
-        </div>
-        %for error in form.shirt_style.errors:
         <p class="alert alert-danger">${error}</p>
         %endfor
         <div class='form-group'>
@@ -101,6 +102,7 @@
       <div class="row">
         <div class="col-md-12">
           <h3>Shirt Mockup</h3>
+          <p>Note: While the mockup is blue, the final shirts will be black.</p>
           <img src="/static/mockup.jpg" class="mockup" />
         </div>
       </div>
@@ -183,7 +185,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript">
-Stripe.setPublishableKey('pk_test_D7aaK6LbIHvw56Dp5qgr74hG');
+Stripe.setPublishableKey('pk_live_Nsovfda3IOO0YXlDEOr1bOjb');
 DAT_GLOBAL_STATE_THO = false;
 $(function() {
   var $form = $('#form');
