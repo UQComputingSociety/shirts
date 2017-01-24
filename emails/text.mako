@@ -9,14 +9,17 @@ $20.65 Paid
 ${user.first_name} ${user.last_name}
 ${str(dt.datetime.now())}
 
-${user.shirt_style} ${user.shirt_size} UQCS T-shirt
-$ 20.00
+% for shirt in user.shirts:
+${shirt.shirt_style} ${shirt.shirt_size} UQCS T-shirt
+$ ${ shirt_price }
+
+% endfor
 
 Online Payment Fee
-$ 0.65
+$ ${ "{:.2f}".format(user.payment_fee) }
 
 Total
-$20.65
+$ ${ "{:.2f}".format(user.transaction_total) }
 
 UQ Computing Society
 

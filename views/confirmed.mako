@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>UQCS Shirts 2016 | Thanks!</title>
+<title>UQCS Shirts 2017 | Thanks!</title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
 <!-- Optional theme -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-
-<link rel="stylesheet" href="static/style.css"
+<link rel="stylesheet" href="static/style.css" >
 
 </head>
 <body>
@@ -16,7 +15,7 @@
   <div class="row">
     <div class="jumbotron">
       <h1>Order successful</h1>
-      <p>You've successfully pre-ordered your UQCS shirt! If you'd like to order another, just <a href="/">go back to the form</a>.</p>
+      <p>You've successfully pre-ordered your UQCS shirt(s)! If you'd like to order more, just <a href="/">go back to the form</a>.</p>
       <p>You should have recieved a reciept for your purchase - if not, contact us as soon as possible <a href="mailto:contact@uqcs.org.au">via email</a> or <a href="https://slack.uqcs.org.au">slack.</a></p>
     </div>
   </div>

@@ -316,17 +316,19 @@ a {
                       <tr>
                         <td>
                           <table class="invoice-items" cellpadding="0" cellspacing="0">
+                            % for shirt in user.shirts:
                             <tr>
-                              <td>${user.shirt_style} ${user.shirt_size} UQCS T-shirt</td>
+                              <td>${shirt.shirt_style} ${shirt.shirt_size} UQCS T-shirt</td>
                               <td class="alignright">$20.00</td>
                             </tr>
+                            % endfor
                             <tr >
                               <td>Online Payment Fee</td>
-                              <td class="alignright">$ 0.65</td>
+                              <td class="alignright">$ ${ "{:.2f}".format(user.payment_fee) }</td>
                             </tr>
                             <tr class="total">
                               <td class="alignright" width="80%">Total</td>
-                              <td class="alignright">$ 20.65</td>
+                              <td class="alignright">$ ${ "{:.2f}".format(user.transaction_total) }</td>
                             </tr>
                           </table>
                         </td>

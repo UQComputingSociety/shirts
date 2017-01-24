@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>UQCS Shirts 2016</title>
+<title>UQCS Shirts 2017</title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
@@ -16,8 +16,8 @@
   <div class="row">
     <div class="col-md-12">
       <h1>UQCS Shirt Preorders</h1>
-      <p>It's been a while coming, but we're finally accepting preorders for UQCS shirts!</p>
-      <p>Shirts cost $20 each, with a 65c online payment fee, which means $20.65 total for you.</p>
+      <p>Another year has come, and with it another round of UQCS shirt preorders!</p>
+      <p>Shirts cost $20 each, with a 30c online payment fee, plus 35c per shirt.</p>
     </div>
   </div>
   <div class="row">
@@ -44,29 +44,31 @@
         % for error in form.email.errors:
         <p class="alert alert-danger">${error}</p>
         % endfor
+        % for shirtform in form.shirts:
         <div class="form-group">
-          ${form.shirt_style.label}
-          % for sub in form.shirt_style:
+          ${shirtform.shirt_style.label}
+          % for sub in shirtform.shirt_style:
           <div class="radio">
             ${sub} ${sub.label}
           </div>
           % endfor
         </div>
-        %for error in form.shirt_style.errors:
+        %for error in shirtform.shirt_style.errors:
         <p class="alert alert-danger">${error}</p>
         %endfor
         <div class="form-group">
-          ${form.shirt_size.label}
-          % for sub in form.shirt_size:
+          ${shirtform.shirt_size.label}
+          % for sub in shirtform.shirt_size:
           <div class="radio">
             ${sub} ${sub.label}
           </div>
           % endfor
           <span class="help-block">Note: Women's sizes only go up to 2XL</span>
         </div>
-        %for error in form.shirt_size.errors:
+        %for error in shirtform.shirt_size.errors:
         <p class="alert alert-danger">${error}</p>
         %endfor
+            %endfor
         <div class='form-group'>
           <label>Cardholder Name</label>
           <input class='form-control' type='text' data-stripe="name">
