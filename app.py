@@ -18,22 +18,76 @@ queue = Queue()
 app = Flask(__name__)
 sizes = ["XS", "S", "M", "L", "XL", "2XL", "3XL"]
 styles = ["Men's", "Women's"]
-SHIRT_PRICE = 20.0
+colours = ["Black print on white shirt", "White print on black shirt"]
+SHIRT_PRICE = 15.0
 
 class Shirt(object):
-    def __init__(self, shirt_style, shirt_size):
+    def __init__(self, style: str, size: str, colour: str):
         # type:
-        self.shirt_size = shirt_size
-        self.shirt_style = shirt_style
+        self.size = size
+        self.style = style
+        self.colour = colour
+
+    @classmethod
+    def from_json(cls, obj):
+        # type: (dict) -> Shirt
+        size = obj.get('size')
+        style = obj.get('style')
+        colour = obj.get('colour')
+        return Shirt(size, style, colour)
+
+    def validate(self):
+        assert self.size in sizes
+        assert self.style in styles
+        assert self.colour in colours
+
+    def as_json(self):
+        return {
+            'size': self.size,
+            'style': self.style,
+            'colour': self.colour,
+        }
+
 
 class Order(object):
-    def __init__(self, first_name: str=None, last_name: str=None, email: str=None, payment_token: str=None, shirts: List[Shirt]=[]):
+    def __init__(self, first_name: str=None, last_name: str=None, email: str=None, payment_token: str=None, shirts: List[Shirt]=None):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
-        self.shirts = shirts
+        self.shirts = shirts or [] # type: List[Shirt]
         self.payment_token = payment_token
         self.charge_id = None
+
+    @classmethod
+    def from_json(cls, obj):
+        # type: (dict) -> Order
+        first_name = obj.get("first_name").strip()
+        last_name = obj.get("last_name").strip()
+        email = obj.get('email').strip()
+        shirts = [Shirt.from_json(shirt) for shirt in obj.get("shirts", [])]
+        payment_token = obj.get("payment_token")
+
+        return Order(first_name, last_name, email, payment_token, shirts)
+
+    def validate(self):
+        errors = {}
+        for shirt in self.shirts:
+            shirt.validate()
+        assert len(self.first_name) > 0
+        assert len(self.last_name) > 0
+        assert len(self.email) > 0
+
+        return errors
+
+    def as_json(self):
+        return {
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email,
+            'shirts': [
+                self.shirts.as_json()
+            ]
+        }
 
     @property
     def total_transaction_price(self):
@@ -136,7 +190,7 @@ class OrderForm(form.Form):
 def form():
     
     res = OrderForm(request.form)
-    if request.method == "POST" and res.validate():
+    if request.method == "POST":
         print(request)
         order_obj = Order()
         res.populate_obj(order_obj)
@@ -144,7 +198,16 @@ def form():
         with open("out.csv", "a+") as f:
             f.write(order_obj.to_csv() + "\n")
         return redirect('/confirmed', 303)
-    return lookup.get_template("order.mako").render(form=res)
+
+    return lookup.get_template("order.mako").render(
+        form=res,
+        errors={},
+        values={},
+        SHIRT_PRICE=SHIRT_PRICE,
+        shirt_sizes=sizes,
+        shirt_styles=styles,
+        shirt_colours=colours,
+    )
 
 @app.route("/confirmed")
 def confirmed():

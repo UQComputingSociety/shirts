@@ -7,9 +7,15 @@
 
 <!-- Optional theme -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-
 <link rel="stylesheet" href="/static/style.css">
-
+<script id="initial_json">
+    ${values}
+</script>
+<script type="text/javascript">
+    INITIAL_JSON = JSON.parse(document.getElementById("initial_json").innerHTML);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.1/knockout-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -17,24 +23,25 @@
     <div class="col-md-12">
       <h1>UQCS Shirt Preorders</h1>
       <p>Another year has come, and with it another round of UQCS shirt preorders!</p>
-      <p>Shirts cost $20 each, with a 30c online payment fee, plus 35c per shirt.</p>
+      <p>Shirts cost $${"{:2.2f}".format(SHIRT_PRICE)} each, with an online payment fee of 30c plus ${int(SHIRT_PRICE * 0.0175 * 100)}c per shirt.</p>
     </div>
   </div>
   <div class="row">
     <div class="col-md-7">
       <form method="POST" id="form" action="." name="form">
+          <input type="hidden" name="json" data-bind="value: asJSON">
         <div class="form-group">
-          ${form.first_name.label}
-          ${form.first_name(class_="form-control")}
+            <label>First Name</label>
+            <input type="text" data-bind="value: firstName" class="form-control" placeholder="First Name" name="first_name" required="true">
         </div>
-        % for error in form.first_name.errors:
+        % for error in errors.get('first_name', []):
         <p class="alert alert-danger">${error}</p>
         % endfor
         <div class="form-group">
-          ${form.last_name.label}
-          ${form.last_name(class_="form-control")}
+            <label>Last Name</label>
+            <input type="text" data-bind="value: lastName" class="form-control" placeholder="Last Name" name="last_name" required="true">
         </div>
-        % for error in form.last_name.errors:
+          % for error in errors.get('last_name', []):
         <p class="alert alert-danger">${error}</p>
         % endfor
         <div class="form-group">
@@ -44,31 +51,59 @@
         % for error in form.email.errors:
         <p class="alert alert-danger">${error}</p>
         % endfor
-        % for shirtform in form.shirts:
+        <hr />
+          <div style="float: right" data-bind="click: newShirt">
+              <button type="button" class="btn btn-success">
+                  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+              </button>
+          </div>
+          <h3>Shirts</h3>
+        <!-- ko foreach: shirts -->
+          <div style="float: right" data-bind="click: removeShirt">
+              <button type="button" class="btn btn-danger">
+                  <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+              </button>
+          </div>
         <div class="form-group">
-          ${shirtform.shirt_style.label}
-          % for sub in shirtform.shirt_style:
+          <label>Shirt Style</label>
+            <span class="reqstar">*</span>
+          % for style in shirt_styles:
           <div class="radio">
-            ${sub} ${sub.label}
+            <label class=".radio-inline">
+                <input name="style" type="radio" value="${style}" data-bind="checked: style">
+                ${style}
+            </label>
           </div>
           % endfor
         </div>
-        %for error in shirtform.shirt_style.errors:
-        <p class="alert alert-danger">${error}</p>
-        %endfor
         <div class="form-group">
-          ${shirtform.shirt_size.label}
-          % for sub in shirtform.shirt_size:
-          <div class="radio">
-            ${sub} ${sub.label}
-          </div>
+          <label>Shirt Size</label>
+          <div>
+          % for size in shirt_sizes:
+            <div class="radio" style="display: inline-block">
+              <label>
+                <input name="size" type="radio" value="${size}" data-bind="checked: size">
+                ${size}
+              </label>
+            </div>
           % endfor
+          </div>
           <span class="help-block">Note: Women's sizes only go up to 2XL</span>
         </div>
-        %for error in shirtform.shirt_size.errors:
-        <p class="alert alert-danger">${error}</p>
-        %endfor
-            %endfor
+        <div class="form-group">
+          <label>Shirt Colours</label>
+          % for colour in shirt_colours:
+            <div class="radio">
+              <label>
+                <input name="colour" type="radio" value="${colour}" data-bind="checked: colour">
+                  ${colour}
+              </label>
+            </div>
+
+          % endfor
+            <hr/>
+        </div>
+        <!-- /ko -->
         <div class='form-group'>
           <label>Cardholder Name</label>
           <input class='form-control' type='text' data-stripe="name">
@@ -96,15 +131,15 @@
         <p class="alert alert-danger">${error}</p>
         %endfor
         </div>
-        ${form.payment_token}
+        <input id="payment_token" name="payment_token" type="hidden" value="" data-bind="value: paymentToken">
         <input class="btn btn-primary submit" name="submit" type="submit" id="payonline_submit" value="Pay Online">
       </form>
     </div>
     <div class="col-md-5">
       <div class="row">
         <div class="col-md-12">
-          <h3>Shirt Mockup</h3>
-          <p>Note: While the mockup is blue, the final shirts will be black.</p>
+          <h3>Shirt Design</h3>
+          <p>Note: Shirts are available with both a black print on a white shirt, or white print on a black shirt</p>
           <img src="/static/mockup.jpg" class="mockup" />
         </div>
       </div>
@@ -187,7 +222,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript">
-Stripe.setPublishableKey('pk_live_Nsovfda3IOO0YXlDEOr1bOjb');
+Stripe.setPublishableKey('pk_test_D7aaK6LbIHvw56Dp5qgr74hG');
 DAT_GLOBAL_STATE_THO = false;
 $(function() {
   var $form = $('#form');
@@ -213,9 +248,9 @@ $(function() {
     }
     return DAT_GLOBAL_STATE_THO;
   });
-});
-
+})
 </script>
+<script src="/static/shirts.js" type="text/javascript"></script>
 
 </body>
 </html>
