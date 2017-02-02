@@ -170,6 +170,19 @@ class Order(object):
                           'subject': "2016 Shirt Pre-order",
                       })
 
+    def notify_slack(self):
+        message = "\n".join([
+            "Order for {n} shirts by {s.first_name} {s.last_name} ({s.email})".format(s=self, n=len(self.shirts))
+        ] + [
+            "\t {sh.style} {sh.size} ({sh.colour})".format(sh=shirt)
+            for shirt in self.shirts
+        ])
+        requests.post(os.environ.get("SLACK_HOOK_URL"), data={
+            'payload': json.dumps({
+                'text': message
+            })
+        })
+
 @app.route("/", methods=["GET", "POST"])
 def form():
 
@@ -212,6 +225,7 @@ def confirmed():
 def order_processing():
     for order in iter(queue.get, None):
         order.send_email()
+        order.notify_slack()
 
 
 if __name__ == "__main__":
