@@ -200,7 +200,8 @@ def form():
         shirt_sizes=sizes,
         shirt_styles=styles,
         shirt_colours=colours,
-        get_flashed_messages=get_flashed_messages
+        get_flashed_messages=get_flashed_messages,
+        stripe_public_key=os.environ.get("STRIPE_PUBLIC_KEY", 'pk_test_D7aaK6LbIHvw56Dp5qgr74hG')
     )
 
 @app.route("/confirmed")

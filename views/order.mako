@@ -213,7 +213,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript">
-Stripe.setPublishableKey('pk_test_D7aaK6LbIHvw56Dp5qgr74hG');
+Stripe.setPublishableKey('${stripe_public_key}');
 DAT_GLOBAL_STATE_THO = false;
 $(function() {
   var $form = $('#form');
