@@ -28,50 +28,45 @@
   </div>
   <div class="row">
     <div class="col-md-7">
+        <div id="errors">
+          % for category, message in get_flashed_messages(True, ['danger', 'warning', 'success']):
+            <p class="alert alert-${category}">${message}</p>
+          % endfor
+        </div>
       <form method="POST" id="form" action="." name="form">
           <input type="hidden" name="json" data-bind="value: asJSON">
         <div class="form-group">
             <label>First Name</label>
             <input type="text" data-bind="value: firstName" class="form-control" placeholder="First Name" name="first_name" required="true">
         </div>
-        % for error in errors.get('first_name', []):
-        <p class="alert alert-danger">${error}</p>
-        % endfor
         <div class="form-group">
             <label>Last Name</label>
             <input type="text" data-bind="value: lastName" class="form-control" placeholder="Last Name" name="last_name" required="true">
         </div>
-          % for error in errors.get('last_name', []):
-        <p class="alert alert-danger">${error}</p>
-        % endfor
         <div class="form-group">
-          ${form.email.label}
-          ${form.email(class_="form-control")}
+          <label>Last Name</label>
+          <input type="email" data-bind="value: email" class="form-control" placeholder="Email" name="email" required="true">
         </div>
-        % for error in form.email.errors:
-        <p class="alert alert-danger">${error}</p>
-        % endfor
         <hr />
           <div style="float: right" data-bind="click: newShirt">
-              <button type="button" class="btn btn-success">
-                  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-              </button>
+            <button type="button" class="btn btn-success">
+              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            </button>
           </div>
           <h3>Shirts</h3>
         <!-- ko foreach: shirts -->
           <div style="float: right" data-bind="click: removeShirt">
-              <button type="button" class="btn btn-danger">
-                  <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
-              </button>
+            <button type="button" class="btn btn-danger">
+              <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+            </button>
           </div>
         <div class="form-group">
           <label>Shirt Style</label>
-            <span class="reqstar">*</span>
-          % for style in shirt_styles:
+          % for idx, style in enumerate(shirt_styles):
           <div class="radio">
             <label class=".radio-inline">
-                <input name="style" type="radio" value="${style}" data-bind="checked: style">
-                ${style}
+              <input type="radio" value="${style}" data-bind="checked: style">
+              ${style}
             </label>
           </div>
           % endfor
@@ -79,10 +74,10 @@
         <div class="form-group">
           <label>Shirt Size</label>
           <div>
-          % for size in shirt_sizes:
+          % for idx, size in enumerate(shirt_sizes):
             <div class="radio" style="display: inline-block">
               <label>
-                <input name="size" type="radio" value="${size}" data-bind="checked: size">
+                <input type="radio" value="${size}" data-bind="checked: size">
                 ${size}
               </label>
             </div>
@@ -92,47 +87,43 @@
         </div>
         <div class="form-group">
           <label>Shirt Colours</label>
-          % for colour in shirt_colours:
+          % for idx, colour in enumerate(shirt_colours):
             <div class="radio">
               <label>
-                <input name="colour" type="radio" value="${colour}" data-bind="checked: colour">
+                <input type="radio" value="${colour}" data-bind="checked: colour">
                   ${colour}
               </label>
             </div>
-
           % endfor
-            <hr/>
+          <hr/>
         </div>
         <!-- /ko -->
         <div class='form-group'>
           <label>Cardholder Name</label>
-          <input class='form-control' type='text' data-stripe="name">
+          <input class='form-control' type='text' data-stripe="name" required>
         </div>
         <div class='form-group'>
           <label>Card Number</label>
-          <input class='form-control' size='20' type='text' data-stripe="number">
+          <input class='form-control' size='20' type='text' data-stripe="number" required>
         </div>
         <div class='form-group row'>
           <div class='col-xs-4 form-group cvc required'>
             <label class='control-label'>CVC</label>
-            <input class='form-control' placeholder='ex. 311' size='4' type='text' data-stripe="cvc">
+            <input class='form-control' placeholder='ex. 311' size='4' type='text' data-stripe="cvc" required>
           </div>
           <div class='col-xs-4 form-group expiration required'>
             <label class='control-label'>Expiration</label>
-            <input class='form-control card-expiry-month' placeholder='MM' size='2' type='text' data-stripe="exp_month">
+            <input class='form-control card-expiry-month' placeholder='MM' size='2' type='text' data-stripe="exp_month" required>
           </div>
           <div class='col-xs-4 form-group expiration required'>
             <label class='control-label'> </label>
-            <input class='form-control' placeholder='YY' size='2' type='text' data-stripe="exp_year">
+            <input class='form-control' placeholder='YY' size='2' type='text' data-stripe="exp_year" required>
           </div>
         </div>
         <div id="payment_errors">
-        %for error in form.payment_token.errors:
-        <p class="alert alert-danger">${error}</p>
-        %endfor
         </div>
-        <input id="payment_token" name="payment_token" type="hidden" value="" data-bind="value: paymentToken">
-        <input class="btn btn-primary submit" name="submit" type="submit" id="payonline_submit" value="Pay Online">
+        <input id="payment_token" name="payment_token" type="hidden" data-bind="value: paymentToken">
+        <input class="btn btn-primary submit" name="submit" type="submit" id="payonline_submit" data-bind="value: submitText">
       </form>
     </div>
     <div class="col-md-5">
@@ -236,7 +227,7 @@ $(function() {
         console.log(resp);
         if (status != 200){
           $form.find('.submit').prop('disabled', false);
-          $form.find("#payment_errors").append('<p class="alert alert-danger">'.concat(resp.error.message).concat("</p>"));
+          $form.find("#errors").append('<p class="alert alert-danger">'.concat(resp.error.message).concat("</p>"));
           return;
         }
         $form.find("[name=payment_token]").val(resp.id);

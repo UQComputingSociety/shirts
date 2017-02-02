@@ -3,9 +3,9 @@ function ShirtViewModel(parent, initial){
     var that = {}; // Public variables
     initial = initial || {};
 
-    that.size = ko.observable(initial.size || null);
-    that.style = ko.observable(initial.style || null);
-    that.colour = ko.observable(initial.colour || null);
+    that.size = ko.observable(initial.size || "XS");
+    that.style = ko.observable(initial.style || "Men's");
+    that.colour = ko.observable(initial.colour || "Black print on white shirt");
 
     that.removeShirt = function () {
         parent.shirts.remove(function (s) {
@@ -36,8 +36,8 @@ function OrderViewModel(initial) {
         return ShirtViewModel(that, data);
     })).extend({rateLimit: 10});
 
-    that.shirts.subscribe(function () {
-        if (that.shirts().length == 0){
+    that.shirts.subscribe(function (newval) {
+        if (newval.length == 0){
             that.shirts.push(ShirtViewModel(that));
         }
     });
@@ -62,6 +62,17 @@ function OrderViewModel(initial) {
     that.newShirt = function () {
         that.shirts.push(ShirtViewModel(that));
     };
+
+    that.submitText = ko.pureComputed(function () {
+        var base = 'Pay Online ';
+        var cost = that.shirts().length * 15;
+        cost *= 1.0175;
+        cost += 0.3;
+        cost *= 100;
+        cost |= 0;
+        cost /= 100;
+        return base + '($' + cost + ')';
+    });
 
     that.asJSON.subscribe(console.log);
     return that;

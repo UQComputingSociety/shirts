@@ -2,20 +2,22 @@ from typing import List
 
 from wtforms import validators, fields, form
 from mako.lookup import TemplateLookup
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, flash, get_flashed_messages
 from queue import Queue
 from threading import Thread
 import datetime as dt
 import premailer
 import requests
 import os
+import json
 import stripe
-import sanic
+import random
 
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
 lookup = TemplateLookup(["views", "emails"], input_encoding='utf-8')
 queue = Queue()
 app = Flask(__name__)
+app.secret_key = random._urandom(20)
 sizes = ["XS", "S", "M", "L", "XL", "2XL", "3XL"]
 styles = ["Men's", "Women's"]
 colours = ["Black print on white shirt", "White print on black shirt"]
@@ -29,17 +31,24 @@ class Shirt(object):
         self.colour = colour
 
     @classmethod
-    def from_json(cls, obj):
-        # type: (dict) -> Shirt
+    def from_json(cls, obj: dict) -> 'Shirt':
         size = obj.get('size')
         style = obj.get('style')
         colour = obj.get('colour')
-        return Shirt(size, style, colour)
+        return Shirt(size=size, style=style, colour=colour)
 
-    def validate(self):
-        assert self.size in sizes
-        assert self.style in styles
-        assert self.colour in colours
+    def validate(self) -> bool:
+        result = True
+        if self.size not in sizes:
+            flash("Invalid shirt size entered", "danger")
+            result = False
+        if self.style not in styles:
+            flash("Invalid shirt style entered", "danger")
+            result = False
+        if self.colour not in colours:
+            flash("Invalid shirt colour entered", "danger")
+            result = False
+        return result
 
     def as_json(self):
         return {
@@ -47,6 +56,10 @@ class Shirt(object):
             'style': self.style,
             'colour': self.colour,
         }
+
+    @property
+    def text_colour(self):
+        return self.colour.split()[0].strip()
 
 
 class Order(object):
@@ -70,14 +83,34 @@ class Order(object):
         return Order(first_name, last_name, email, payment_token, shirts)
 
     def validate(self):
-        errors = {}
-        for shirt in self.shirts:
-            shirt.validate()
-        assert len(self.first_name) > 0
-        assert len(self.last_name) > 0
-        assert len(self.email) > 0
+        result = True
+        if len(self.first_name) == 0:
+            flash("No first name entered", "danger")
+            result = False
+        if len(self.last_name) == 0:
+            flash("No last name entered", "danger")
+            result = False
+        if len(self.email) == 0:
+            flash("No email entered", 'danger')
 
-        return errors
+        for shirt in self.shirts:
+            result = result and shirt.validate()
+
+        try:
+            charge = stripe.Charge.create(
+                amount=int(self.total_transaction_price * 100), # amount in cents, again
+                currency="aud",
+                source=self.payment_token,
+                description="UQCS Shirt Preorder"
+            )
+            self.charge_id = charge['id']
+        except stripe.error.CardError as e:
+            flash("Card declined", "danger")
+            result = False
+        except stripe.error.InvalidRequestError as e:
+            flash("Something went wrong when processing your payment ({})".format(e), "danger")
+            result = False
+        return result
 
     def as_json(self):
         return {
@@ -91,11 +124,15 @@ class Order(object):
 
     @property
     def total_transaction_price(self):
+        return self.shirts_price + self.payment_fee
+
+    @property
+    def shirts_price(self):
         return SHIRT_PRICE * len(self.shirts)
 
     @property
     def payment_fee(self):
-        return 0.0175 * self.total_transaction_price + 0.30
+        return (0.0175 * SHIRT_PRICE) * len(self.shirts) + 0.30
 
     def to_csv(self):
         return "\n".join([
@@ -103,8 +140,9 @@ class Order(object):
                 self.first_name,
                 self.last_name,
                 self.email,
-                shirt.shirt_size,
-                shirt.shirt_style,
+                shirt.size,
+                shirt.style,
+                shirt.colour,
                 self.payment_token
             ]))
             for shirt in self.shirts
@@ -132,81 +170,37 @@ class Order(object):
                           'subject': "2016 Shirt Pre-order",
                       })
 
-class ShirtForm(form.Form):
-    shirt_size = fields.RadioField(
-        "Shirt Size",
-        choices=list(zip(sizes, sizes)),
-        validators=[
-            validators.InputRequired(),
-        ],
-    )
-    shirt_style = fields.RadioField(
-        "Shirt Style",
-        choices=list(zip(styles, styles)),
-        validators=[
-            validators.InputRequired(),
-        ],
-    )
-
-
-class OrderForm(form.Form):
-    first_name = fields.StringField(
-        "First Name",
-        validators=[
-            validators.InputRequired(),
-        ],
-    )
-    last_name = fields.StringField(
-        "Last Name",
-        validators=[
-            validators.InputRequired(),
-        ],
-    )
-    email = fields.StringField(
-        "Email",
-        validators=[
-            validators.Email(),
-        ],
-    )
-    shirts = fields.FieldList(fields.FormField(ShirtForm), min_entries=1)
-    payment_token = fields.HiddenField()
-
-    def validate_payment_token(form, field):
-        try:
-            charge = stripe.Charge.create(
-                amount=2065, # amount in cents, again
-                currency="aud",
-                source=field.data,
-                description="UQCS Shirt Preorder"
-            )
-            field.data = charge['id']
-        except stripe.error.CardError as e:
-            raise validators.ValidationError("Card declined")
-        except stripe.error.InvalidRequestError as e:
-            raise validators.ValidationError("Something went wrong when processing your payment")
-
-
 @app.route("/", methods=["GET", "POST"])
 def form():
-    
-    res = OrderForm(request.form)
-    if request.method == "POST":
-        print(request)
-        order_obj = Order()
-        res.populate_obj(order_obj)
-        queue.put(order_obj)
-        with open("out.csv", "a+") as f:
-            f.write(order_obj.to_csv() + "\n")
-        return redirect('/confirmed', 303)
+
+    form_data = request.form.get('json')
+
+
+    if request.method == "POST" and form_data:
+        cont = True
+        try:
+            data = json.loads(form_data)
+        except ValueError:
+            flash("Internal server error - could not decode JSON", "danger")
+            cont = False
+        if cont:
+            order_obj = Order.from_json(data)
+            order_obj.payment_token = request.form.get('payment_token', order_obj.payment_token)
+            cont = order_obj.validate()
+        if cont:
+            queue.put(order_obj)
+            with open("out.csv", "a+") as f:
+                f.write(order_obj.to_csv() + "\n")
+            return redirect('/confirmed', 303)
 
     return lookup.get_template("order.mako").render(
-        form=res,
         errors={},
         values={},
         SHIRT_PRICE=SHIRT_PRICE,
         shirt_sizes=sizes,
         shirt_styles=styles,
         shirt_colours=colours,
+        get_flashed_messages=get_flashed_messages
     )
 
 @app.route("/confirmed")
