@@ -1,22 +1,25 @@
 **********
-$20.65 Paid
+$ ${ "{:.2f}".format(user.total_transaction_price) }
 **********
 
 -----------------------
-2016 UQCS T-Shirt Pre-order
+2017 UQCS T-Shirt Pre-order
 -----------------------
 
 ${user.first_name} ${user.last_name}
 ${str(dt.datetime.now())}
 
-${user.shirt_style} ${user.shirt_size} UQCS T-shirt
-$ 20.00
+% for shirt in user.shirts:
+${shirt.style} ${shirt.size} UQCS T-shirt ((${shirt.text_colour}))
+$ ${ shirt_price }
+
+% endfor
 
 Online Payment Fee
-$ 0.65
+$ ${ "{:.2f}".format(user.payment_fee) }
 
 Total
-$20.65
+$ ${ "{:.2f}".format(user.total_transaction_price) }
 
 UQ Computing Society
 

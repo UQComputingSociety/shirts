@@ -299,12 +299,12 @@ a {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <h1 class="aligncenter">$20.65 Paid</h1>
+                    <h1 class="aligncenter">$ ${ "{:.2f}".format(user.total_transaction_price) } Paid</h1>
                   </td>
                 </tr>
                 <tr>
                   <td class="content-block">
-                    <h2 class="aligncenter">2016 UQCS T-Shirt Pre-order</h2>
+                    <h2 class="aligncenter">2017 UQCS T-Shirt Pre-order</h2>
                   </td>
                 </tr>
                 <tr>
@@ -316,17 +316,19 @@ a {
                       <tr>
                         <td>
                           <table class="invoice-items" cellpadding="0" cellspacing="0">
+                            % for shirt in user.shirts:
                             <tr>
-                              <td>${user.shirt_style} ${user.shirt_size} UQCS T-shirt</td>
+                              <td>${shirt.style} ${shirt.size} UQCS T-shirt (${shirt.text_colour})</td>
                               <td class="alignright">$20.00</td>
                             </tr>
+                            % endfor
                             <tr >
                               <td>Online Payment Fee</td>
-                              <td class="alignright">$ 0.65</td>
+                              <td class="alignright">$ ${ "{:.2f}".format(user.payment_fee) }</td>
                             </tr>
                             <tr class="total">
                               <td class="alignright" width="80%">Total</td>
-                              <td class="alignright">$ 20.65</td>
+                              <td class="alignright">$ ${ "{:.2f}".format(user.total_transaction_price) }</td>
                             </tr>
                           </table>
                         </td>

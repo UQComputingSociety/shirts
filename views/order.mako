@@ -1,109 +1,139 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>UQCS Shirts 2016</title>
+<title>UQCS Shirts 2017</title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
 <!-- Optional theme -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-
 <link rel="stylesheet" href="/static/style.css">
-
+<script id="initial_json">
+    ${values}
+</script>
+<script type="text/javascript">
+    INITIAL_JSON = JSON.parse(document.getElementById("initial_json").innerHTML);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.1/knockout-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 </head>
 <body>
 <div class="container">
   <div class="row">
-    <div class="col-md-12">
-      <h1>UQCS Shirt Preorders</h1>
-      <p>It's been a while coming, but we're finally accepting preorders for UQCS shirts!</p>
-      <p>Shirts cost $20 each, with a 65c online payment fee, which means $20.65 total for you.</p>
-    </div>
-  </div>
-  <div class="row">
     <div class="col-md-7">
+        <h1>UQCS Shirt Preorders</h1>
+        <p>Another year has come, and with it another round of UQCS shirt preorders!</p>
+        <p>Shirts cost $${"{:2.2f}".format(SHIRT_PRICE)} each, with an online payment fee of 30c plus ${int(SHIRT_PRICE * 0.0175 * 100)}c per shirt.</p>
+        <div id="errors">
+          % for category, message in get_flashed_messages(True, ['danger', 'warning', 'success']):
+            <p class="alert alert-${category}">${message}</p>
+          % endfor
+        </div>
       <form method="POST" id="form" action="." name="form">
+          <input type="hidden" name="json" data-bind="value: asJSON">
         <div class="form-group">
-          ${form.first_name.label}
-          ${form.first_name(class_="form-control")}
+            <label>First Name</label>
+            <input type="text" data-bind="value: firstName" class="form-control" placeholder="First Name" name="first_name" required="true">
         </div>
-        % for error in form.first_name.errors:
-        <p class="alert alert-danger">${error}</p>
-        % endfor
         <div class="form-group">
-          ${form.last_name.label}
-          ${form.last_name(class_="form-control")}
+            <label>Last Name</label>
+            <input type="text" data-bind="value: lastName" class="form-control" placeholder="Last Name" name="last_name" required="true">
         </div>
-        % for error in form.last_name.errors:
-        <p class="alert alert-danger">${error}</p>
-        % endfor
         <div class="form-group">
-          ${form.email.label}
-          ${form.email(class_="form-control")}
+          <label>Email</label>
+          <input type="email" data-bind="value: email" class="form-control" placeholder="Email" name="email" required="true">
         </div>
-        % for error in form.email.errors:
-        <p class="alert alert-danger">${error}</p>
-        % endfor
+        <hr />
+          <div style="float: right" data-bind="click: newShirt">
+            <button type="button" class="btn btn-success">
+              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            </button>
+          </div>
+          <h3>Shirts</h3>
+        <!-- ko foreach: shirts -->
+          <div style="float: right" data-bind="click: removeShirt">
+            <button type="button" class="btn btn-danger">
+              <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+            </button>
+          </div>
         <div class="form-group">
-          ${form.shirt_style.label}
-          % for sub in form.shirt_style:
+          <label>Shirt Style</label>
+          % for idx, style in enumerate(shirt_styles):
           <div class="radio">
-            ${sub} ${sub.label}
+            <label class=".radio-inline">
+              <input type="radio" value="${style}" data-bind="checked: style">
+              ${style}
+            </label>
           </div>
           % endfor
         </div>
-        %for error in form.shirt_style.errors:
-        <p class="alert alert-danger">${error}</p>
-        %endfor
         <div class="form-group">
-          ${form.shirt_size.label}
-          % for sub in form.shirt_size:
-          <div class="radio">
-            ${sub} ${sub.label}
-          </div>
+          <label>Shirt Size</label>
+          <div>
+          % for idx, size in enumerate(shirt_sizes):
+            <div class="radio" style="display: inline-block">
+              <label>
+                <input type="radio" value="${size}" data-bind="checked: size">
+                ${size}
+              </label>
+            </div>
           % endfor
+          </div>
           <span class="help-block">Note: Women's sizes only go up to 2XL</span>
         </div>
-        %for error in form.shirt_size.errors:
-        <p class="alert alert-danger">${error}</p>
-        %endfor
+        <div class="form-group">
+          <label>Shirt Colours</label>
+          % for idx, colour in enumerate(shirt_colours):
+            <div class="radio">
+              <label>
+                <input type="radio" value="${colour}" data-bind="checked: colour">
+                  ${colour}
+              </label>
+            </div>
+          % endfor
+          <hr/>
+        </div>
+        <!-- /ko -->
         <div class='form-group'>
           <label>Cardholder Name</label>
-          <input class='form-control' type='text' data-stripe="name">
+          <input class='form-control' type='text' data-stripe="name" required>
         </div>
         <div class='form-group'>
           <label>Card Number</label>
-          <input class='form-control' size='20' type='text' data-stripe="number">
+          <input class='form-control' size='20' type='text' data-stripe="number" required>
         </div>
         <div class='form-group row'>
           <div class='col-xs-4 form-group cvc required'>
             <label class='control-label'>CVC</label>
-            <input class='form-control' placeholder='ex. 311' size='4' type='text' data-stripe="cvc">
+            <input class='form-control' placeholder='ex. 311' size='4' type='text' data-stripe="cvc" required>
           </div>
           <div class='col-xs-4 form-group expiration required'>
             <label class='control-label'>Expiration</label>
-            <input class='form-control card-expiry-month' placeholder='MM' size='2' type='text' data-stripe="exp_month">
+            <input class='form-control card-expiry-month' placeholder='MM' size='2' type='text' data-stripe="exp_month" required>
           </div>
           <div class='col-xs-4 form-group expiration required'>
             <label class='control-label'> </label>
-            <input class='form-control' placeholder='YY' size='2' type='text' data-stripe="exp_year">
+            <input class='form-control' placeholder='YY' size='2' type='text' data-stripe="exp_year" required>
           </div>
         </div>
         <div id="payment_errors">
-        %for error in form.payment_token.errors:
-        <p class="alert alert-danger">${error}</p>
-        %endfor
         </div>
-        ${form.payment_token}
-        <input class="btn btn-primary submit" name="submit" type="submit" id="payonline_submit" value="Pay Online">
+        <input id="payment_token" name="payment_token" type="hidden" data-bind="value: paymentToken">
+        <input class="btn btn-primary submit" name="submit" type="submit" id="payonline_submit" data-bind="value: submitText">
       </form>
     </div>
     <div class="col-md-5">
       <div class="row">
         <div class="col-md-12">
-          <h3>Shirt Mockup</h3>
-          <p>Note: While the mockup is blue, the final shirts will be black.</p>
-          <img src="/static/mockup.jpg" class="mockup" />
+          <h3>Shirt Design</h3>
+          <p>Note: Shirts are available with both a black print on a white shirt, or white print on a black shirt</p>\
+        </div>
+        <div class="col-md-12">
+          <img src="/static/mockup-white.png" class="mockup" />
+        </div>
+
+        <div class="col-md-12">
+          <img src="/static/mockup-black.png" class="mockup" />
         </div>
       </div>
       <div class="row">
@@ -185,7 +215,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript">
-Stripe.setPublishableKey('pk_live_Nsovfda3IOO0YXlDEOr1bOjb');
+Stripe.setPublishableKey('${stripe_public_key}');
 DAT_GLOBAL_STATE_THO = false;
 $(function() {
   var $form = $('#form');
@@ -199,7 +229,7 @@ $(function() {
         console.log(resp);
         if (status != 200){
           $form.find('.submit').prop('disabled', false);
-          $form.find("#payment_errors").append('<p class="alert alert-danger">'.concat(resp.error.message).concat("</p>"));
+          $("#errors").append('<p class="alert alert-danger">'.concat(resp.error.message).concat("</p>"));
           return;
         }
         $form.find("[name=payment_token]").val(resp.id);
@@ -211,9 +241,9 @@ $(function() {
     }
     return DAT_GLOBAL_STATE_THO;
   });
-});
-
+})
 </script>
+<script src="/static/shirts.js" type="text/javascript"></script>
 
 </body>
 </html>
