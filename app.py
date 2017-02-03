@@ -89,6 +89,10 @@ class Order(object):
             result = False
         if len(self.email) == 0:
             flash("No email entered", 'danger')
+            result = False
+        if len(self.shirts) == 0:
+            flash("No shirts ordered", "danger")
+            result = False
 
         for shirt in self.shirts:
             result = result and shirt.validate()
