@@ -20,14 +20,10 @@
 <body>
 <div class="container">
   <div class="row">
-    <div class="col-md-12">
-      <h1>UQCS Shirt Preorders</h1>
-      <p>Another year has come, and with it another round of UQCS shirt preorders!</p>
-      <p>Shirts cost $${"{:2.2f}".format(SHIRT_PRICE)} each, with an online payment fee of 30c plus ${int(SHIRT_PRICE * 0.0175 * 100)}c per shirt.</p>
-    </div>
-  </div>
-  <div class="row">
     <div class="col-md-7">
+        <h1>UQCS Shirt Preorders</h1>
+        <p>Another year has come, and with it another round of UQCS shirt preorders!</p>
+        <p>Shirts cost $${"{:2.2f}".format(SHIRT_PRICE)} each, with an online payment fee of 30c plus ${int(SHIRT_PRICE * 0.0175 * 100)}c per shirt.</p>
         <div id="errors">
           % for category, message in get_flashed_messages(True, ['danger', 'warning', 'success']):
             <p class="alert alert-${category}">${message}</p>
@@ -130,8 +126,14 @@
       <div class="row">
         <div class="col-md-12">
           <h3>Shirt Design</h3>
-          <p>Note: Shirts are available with both a black print on a white shirt, or white print on a black shirt</p>
-          <img src="/static/mockup.jpg" class="mockup" />
+          <p>Note: Shirts are available with both a black print on a white shirt, or white print on a black shirt</p>\
+        </div>
+        <div class="col-md-12">
+          <img src="/static/mockup-white.png" class="mockup" />
+        </div>
+
+        <div class="col-md-12">
+          <img src="/static/mockup-black.png" class="mockup" />
         </div>
       </div>
       <div class="row">
