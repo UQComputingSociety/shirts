@@ -4,7 +4,6 @@ requirements = [
     'stripe',
     'flask',
     'requests',
-    'wtforms',
     'mako',
     'premailer',
 ]

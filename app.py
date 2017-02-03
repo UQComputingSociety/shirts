@@ -1,6 +1,4 @@
-from typing import List
-
-from wtforms import validators, fields, form
+from typing import List, Dict, Optional
 from mako.lookup import TemplateLookup
 from flask import Flask, request, redirect, flash, get_flashed_messages
 from queue import Queue
@@ -15,17 +13,16 @@ import random
 
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
 lookup = TemplateLookup(["views", "emails"], input_encoding='utf-8')
-queue = Queue()
+queue = Queue() # type: Queue
 app = Flask(__name__)
-app.secret_key = random._urandom(20)
+app.secret_key = random.SystemRandom().getrandbits(20)
 sizes = ["XS", "S", "M", "L", "XL", "2XL", "3XL"]
 styles = ["Men's", "Women's"]
 colours = ["Black print on white shirt", "White print on black shirt"]
 SHIRT_PRICE = 15.0
 
 class Shirt(object):
-    def __init__(self, style: str, size: str, colour: str):
-        # type:
+    def __init__(self, style: str, size: str, colour: str) -> None:
         self.size = size
         self.style = style
         self.colour = colour
@@ -50,7 +47,7 @@ class Shirt(object):
             result = False
         return result
 
-    def as_json(self):
+    def as_json(self) -> Dict[str, str]:
         return {
             'size': self.size,
             'style': self.style,
@@ -58,18 +55,18 @@ class Shirt(object):
         }
 
     @property
-    def text_colour(self):
+    def text_colour(self) -> str:
         return self.colour.split()[0].strip()
 
 
 class Order(object):
-    def __init__(self, first_name: str=None, last_name: str=None, email: str=None, payment_token: str=None, shirts: List[Shirt]=None):
+    def __init__(self, first_name: str=None, last_name: str=None, email: str=None, payment_token: str=None, shirts: List[Shirt]=None) -> None:
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
         self.shirts = shirts or [] # type: List[Shirt]
         self.payment_token = payment_token
-        self.charge_id = None
+        self.charge_id = None # type: Optional[str]
 
     @classmethod
     def from_json(cls, obj):
@@ -95,21 +92,21 @@ class Order(object):
 
         for shirt in self.shirts:
             result = result and shirt.validate()
-
-        try:
-            charge = stripe.Charge.create(
-                amount=int(self.total_transaction_price * 100), # amount in cents, again
-                currency="aud",
-                source=self.payment_token,
-                description="UQCS Shirt Preorder"
-            )
-            self.charge_id = charge['id']
-        except stripe.error.CardError as e:
-            flash("Card declined", "danger")
-            result = False
-        except stripe.error.InvalidRequestError as e:
-            flash("Something went wrong when processing your payment ({})".format(e), "danger")
-            result = False
+        if result:
+            try:
+                charge = stripe.Charge.create(
+                    amount=int(self.total_transaction_price * 100), # amount in cents, again
+                    currency="aud",
+                    source=self.payment_token,
+                    description="UQCS Shirt Preorder"
+                )
+                self.charge_id = charge['id']
+            except stripe.error.CardError as e:
+                flash("Card declined", "danger")
+                result = False
+            except stripe.error.InvalidRequestError as e:
+                flash("Something went wrong when processing your payment ({})".format(e), "danger")
+                result = False
         return result
 
     def as_json(self):
@@ -118,7 +115,7 @@ class Order(object):
             'last_name': self.last_name,
             'email': self.email,
             'shirts': [
-                self.shirts.as_json()
+                shirt.as_json() for shirt in self.shirts
             ]
         }
 
@@ -185,9 +182,7 @@ class Order(object):
 
 @app.route("/", methods=["GET", "POST"])
 def form():
-
     form_data = request.form.get('json')
-
 
     if request.method == "POST" and form_data:
         cont = True
