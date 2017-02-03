@@ -40,7 +40,7 @@
             <input type="text" data-bind="value: lastName" class="form-control" placeholder="Last Name" name="last_name" required="true">
         </div>
         <div class="form-group">
-          <label>Last Name</label>
+          <label>Email</label>
           <input type="email" data-bind="value: email" class="form-control" placeholder="Email" name="email" required="true">
         </div>
         <hr />
@@ -229,7 +229,7 @@ $(function() {
         console.log(resp);
         if (status != 200){
           $form.find('.submit').prop('disabled', false);
-          $form.find("#errors").append('<p class="alert alert-danger">'.concat(resp.error.message).concat("</p>"));
+          $("#errors").append('<p class="alert alert-danger">'.concat(resp.error.message).concat("</p>"));
           return;
         }
         $form.find("[name=payment_token]").val(resp.id);
