@@ -140,7 +140,7 @@ class Order(object):
                 shirt.size,
                 shirt.style,
                 shirt.colour,
-                self.payment_token
+                self.charge_id
             ]))
             for shirt in self.shirts
         ])
