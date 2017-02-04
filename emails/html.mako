@@ -319,7 +319,7 @@ a {
                             % for shirt in user.shirts:
                             <tr>
                               <td>${shirt.style} ${shirt.size} UQCS T-shirt (${shirt.text_colour})</td>
-                              <td class="alignright">$20.00</td>
+                              <td class="alignright">$ ${"{:.2f}".format(shirt_price)}</td>
                             </tr>
                             % endfor
                             <tr >
