@@ -18,7 +18,12 @@ app = Flask(__name__)
 app.secret_key = random.SystemRandom().getrandbits(20)
 sizes = ["XS", "S", "M", "L", "XL", "2XL", "3XL"]
 styles = ["Men's", "Women's"]
-colours = ["Black print on white shirt", "White print on black shirt"]
+colours = [
+    "Black print on white shirt",
+    "White print on black shirt",
+    "White (logo pocket print only) on black shirt",
+    "Black (logo pocket print only) on white shirt"
+]
 SHIRT_PRICE = 15.0
 
 class Shirt(object):
@@ -56,7 +61,10 @@ class Shirt(object):
 
     @property
     def text_colour(self) -> str:
-        return self.colour.split()[0].strip()
+        result = self.colour.split()[-2].strip() + " shirt"
+        if "logo" in self.colour:
+            result += " logo only"
+        return result
 
 
 class Order(object):
@@ -168,8 +176,9 @@ class Order(object):
                       })
 
     def notify_slack(self):
+        plural = 's' if len(self.shirts) != 1 else ''
         message = "\n".join([
-            "Order for {n} shirts by {s.first_name} {s.last_name} ({s.email})".format(s=self, n=len(self.shirts))
+            "Order for {n} shirt{plural} by {s.first_name} {s.last_name} ({s.email})".format(s=self, n=len(self.shirts), plural=plural)
         ] + [
             "\t {sh.style} {sh.size} ({sh.colour})".format(sh=shirt)
             for shirt in self.shirts
@@ -183,7 +192,7 @@ class Order(object):
 @app.route("/", methods=["GET", "POST"])
 def form():
     form_data = request.form.get('json')
-
+    values = {}
     if request.method == "POST" and form_data:
         cont = True
         try:
@@ -194,6 +203,7 @@ def form():
         if cont:
             order_obj = Order.from_json(data)
             order_obj.payment_token = request.form.get('payment_token', order_obj.payment_token)
+            values = order_obj.as_json()
             cont = order_obj.validate()
         if cont:
             queue.put(order_obj)
@@ -203,7 +213,7 @@ def form():
 
     return lookup.get_template("order.mako").render(
         errors={},
-        values={},
+        values=values,
         SHIRT_PRICE=SHIRT_PRICE,
         shirt_sizes=sizes,
         shirt_styles=styles,
