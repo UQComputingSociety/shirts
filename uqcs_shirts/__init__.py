@@ -11,8 +11,15 @@ import json
 import stripe
 import random
 
+
+file_root = os.dirname(__file__)
+
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
-lookup = TemplateLookup(["views", "emails"], input_encoding='utf-8')
+lookup = TemplateLookup(
+    [
+        os.path.join(file_root, "views"),
+        os.path.join(file_root, "emails")
+    ], input_encoding='utf-8')
 queue = Queue() # type: Queue
 app = Flask(__name__)
 app.secret_key = random.SystemRandom().getrandbits(20)
@@ -237,7 +244,7 @@ def order_processing():
         order.notify_slack()
 
 
-if __name__ == "__main__":
+def main(argv):
     worker_thread = Thread(target=order_processing)
     worker_thread.start()
 
@@ -245,3 +252,8 @@ if __name__ == "__main__":
 
     queue.put(None)
     worker_thread.join()
+
+
+if __name__ == "__main__":
+    import sys
+    main(sys.argv)

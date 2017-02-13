@@ -1,0 +1,3 @@
+recursive-include uqcs_shirts/static *.png *.js *css
+recursive-include uqcs_shirts/views *.mako
+recursive-include uqcs_shirts/emails *.mako
