@@ -12,7 +12,7 @@ import stripe
 import random
 
 
-file_root = os.dirname(__file__)
+file_root = os.path.dirname(__file__)
 
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
 lookup = TemplateLookup(
