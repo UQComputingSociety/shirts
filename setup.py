@@ -18,5 +18,10 @@ setup(
     license='MIT',
     author='Tom Manderson',
     author_email='me@trm.io',
-    description='The UQCS shirt preoder system'
+    description='The UQCS shirt preoder system',
+    entry_points={
+        'console_scripts': [
+            'shirts_run = uqcs_shirts.__main__:main',
+        ],
+    },
 )
