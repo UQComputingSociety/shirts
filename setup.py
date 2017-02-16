@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+import sys
 
 requirements = [
     'stripe',
@@ -8,10 +9,14 @@ requirements = [
     'premailer',
 ]
 
+if sys.version_info < (3, 5):
+    requirements.append('typing')
+
+
 setup(
     name='uqcs-shirts',
     version='1.0',
-    packages=[''],
+    packages=find_packages(),
     url='https://shirts.uqcs.org.au',
     install_requires=requirements,
     license='MIT',

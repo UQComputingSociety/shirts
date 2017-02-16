@@ -1,5 +1,4 @@
 from typing import List, Dict, Optional
-from mako.lookup import TemplateLookup
 from flask import Flask, request, redirect, flash, get_flashed_messages
 from queue import Queue
 from threading import Thread
@@ -10,10 +9,9 @@ import os
 import json
 import stripe
 import random
+from .templates import lookup
 
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
-lookup = TemplateLookup(["views", "emails"], input_encoding='utf-8')
-queue = Queue() # type: Queue
 app = Flask(__name__)
 app.secret_key = random.SystemRandom().getrandbits(20)
 sizes = ["XS", "S", "M", "L", "XL", "2XL", "3XL"]
@@ -25,6 +23,7 @@ colours = [
     "Black (logo pocket print only) on white shirt"
 ]
 SHIRT_PRICE = 15.0
+queue = Queue()  # type: Queue
 
 class Shirt(object):
     def __init__(self, style: str, size: str, colour: str) -> None:
@@ -237,7 +236,7 @@ def order_processing():
         order.notify_slack()
 
 
-if __name__ == "__main__":
+def main():
     worker_thread = Thread(target=order_processing)
     worker_thread.start()
 
