@@ -11,6 +11,9 @@ import stripe
 import random
 from .templates import lookup
 
+
+file_root = os.path.dirname(__file__)
+
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
 app = Flask(__name__)
 app.secret_key = random.SystemRandom().getrandbits(20)
@@ -236,7 +239,7 @@ def order_processing():
         order.notify_slack()
 
 
-def main():
+def main(argv):
     worker_thread = Thread(target=order_processing)
     worker_thread.start()
 
@@ -244,3 +247,8 @@ def main():
 
     queue.put(None)
     worker_thread.join()
+
+
+if __name__ == "__main__":
+    import sys
+    main(sys.argv)

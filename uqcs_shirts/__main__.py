@@ -1,3 +1,5 @@
-from . import main
+from uqcs_shirts import main
+import sys
 
-main()
+if __name__ == "__main__":
+    main(sys.argv)
