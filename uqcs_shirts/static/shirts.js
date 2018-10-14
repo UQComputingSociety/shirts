@@ -65,7 +65,7 @@ function OrderViewModel(initial) {
 
     that.submitText = ko.pureComputed(function () {
         var base = 'Pay Online ';
-        var cost = that.shirts().length * 15;
+        var cost = that.shirts().length * 10;
         cost *= 1.0175;
         cost += 0.3;
         cost *= 100;

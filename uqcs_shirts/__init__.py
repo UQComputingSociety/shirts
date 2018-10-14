@@ -25,7 +25,7 @@ colours = [
     "White (logo pocket print only) on black shirt",
     "Black (logo pocket print only) on white shirt"
 ]
-SHIRT_PRICE = 15.0
+SHIRT_PRICE = 10.0
 queue = Queue()  # type: Queue
 
 class Shirt(object):
