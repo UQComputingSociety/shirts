@@ -299,6 +299,11 @@ a {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
+                      <img src="https://raw.githubusercontent.com/UQComputingSociety/design/master/logo/black_logo_text.png">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="content-block">
                     <h1 class="aligncenter">$ ${ "{:.2f}".format(user.total_transaction_price) } Paid</h1>
                   </td>
                 </tr>

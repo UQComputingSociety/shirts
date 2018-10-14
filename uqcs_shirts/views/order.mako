@@ -22,7 +22,7 @@
   <div class="row">
     <div class="col-md-7">
         <h1>UQCS Shirt Preorders</h1>
-        <p>Another year has come, and with it another round of UQCS shirt preorders!</p>
+        <p>Another year has come, and with it another round of UQCS shirt preorders!!!</p>
         <p>Shirts cost $${"{:2.2f}".format(SHIRT_PRICE)} each, with an online payment fee of 30c plus ${int(SHIRT_PRICE * 0.0175 * 100)}c per shirt.</p>
         <div id="errors">
           % for category, message in get_flashed_messages(True, ['danger', 'warning', 'success']):

@@ -7,7 +7,8 @@ $ ${ "{:.2f}".format(user.total_transaction_price) }
 -----------------------
 
 ${user.first_name} ${user.last_name}
-${str(dt.datetime.now())}
+
+${str(dt.datetime.now().replace(microsecond=0).isoformat())}
 
 % for shirt in user.shirts:
 ${shirt.style} ${shirt.size} UQCS T-shirt ((${shirt.text_colour}))
