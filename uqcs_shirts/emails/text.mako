@@ -3,7 +3,7 @@ $ ${ "{:.2f}".format(user.total_transaction_price) }
 **********
 
 -----------------------
-2017 UQCS T-Shirt Pre-order
+2018 UQCS T-Shirt Pre-order
 -----------------------
 
 ${user.first_name} ${user.last_name}

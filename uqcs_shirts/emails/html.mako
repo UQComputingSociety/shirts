@@ -304,7 +304,7 @@ a {
                 </tr>
                 <tr>
                   <td class="content-block">
-                    <h2 class="aligncenter">2017 UQCS T-Shirt Pre-order</h2>
+                    <h2 class="aligncenter">2018 UQCS T-Shirt Pre-order</h2>
                   </td>
                 </tr>
                 <tr>

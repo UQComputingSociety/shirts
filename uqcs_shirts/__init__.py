@@ -178,7 +178,7 @@ class Order(object):
                           'bcc': "receipts@uqcs.org.au",
                           'text': receiptText,
                           'html': premailer.transform(receiptHTML),
-                          'subject': "2016 Shirt Pre-order",
+                          'subject': "2018 Shirt Pre-order",
                       })
 
     def notify_slack(self):
