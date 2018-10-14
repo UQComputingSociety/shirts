@@ -120,7 +120,7 @@
         </div>
         <input id="payment_token" name="payment_token" type="hidden" data-bind="value: paymentToken">
         <input class="btn btn-primary submit" name="submit" type="submit" id="payonline_submit" data-bind="value: submitText">
-        <img src="/static/powered_by_stripe.png" class="stripe">
+        <img src="/static/powered_by_stripe.png" style="margin-left: 20px">
       </form>
       <br/>
     </div>
