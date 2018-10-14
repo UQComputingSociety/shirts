@@ -22,8 +22,8 @@ styles = ["Men's", "Women's"]
 colours = [
     "Black print on white shirt",
     "White print on black shirt",
-    "White (logo pocket print only) on black shirt",
-    "Black (logo pocket print only) on white shirt"
+    "Black (logo pocket print only) on white shirt",
+    "White (logo pocket print only) on black shirt"
 ]
 SHIRT_PRICE = 10.0
 queue = Queue()  # type: Queue
