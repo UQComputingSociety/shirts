@@ -126,7 +126,9 @@
       <div class="row">
         <div class="col-md-12">
           <h3>Shirt Design</h3>
-          <p>Note: Shirts are available with both a black print on a white shirt, or white print on a black shirt</p>\
+            <p>Note: Shirts are available with both a black print on a white shirt, or white print on a black shirt.
+                <i>You can order your shirt with or without the back artwork (ibis motif).</i>
+            </p>\
         </div>
         <div class="col-md-12">
           <img src="/static/mockup-white.png" class="mockup" />
