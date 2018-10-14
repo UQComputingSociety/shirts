@@ -299,7 +299,7 @@ a {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                      <img src="https://raw.githubusercontent.com/UQComputingSociety/design/master/logo/black_logo_text.png">
+                      <img src="https://raw.githubusercontent.com/UQComputingSociety/design/master/logo/black_logo_text.png" width="100%">
                   </td>
                 </tr>
                 <tr>
