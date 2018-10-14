@@ -213,7 +213,7 @@ def form():
             cont = order_obj.validate()
         if cont:
             queue.put(order_obj)
-            with open("../out.csv", "a+") as f:
+            with open("../orders/out.csv", "a+") as f:
                 f.write(order_obj.to_csv() + "\n")
             return redirect('/confirmed', 303)
 
