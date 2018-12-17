@@ -28,6 +28,7 @@ colours = [
 SHIRT_PRICE = 10.0
 queue = Queue()  # type: Queue
 
+
 class Shirt(object):
     def __init__(self, style: str, size: str, colour: str) -> None:
         self.size = size
@@ -166,9 +167,9 @@ class Order(object):
             'shirt_price': SHIRT_PRICE,
         }
 
-        receiptText = lookup.get_template("text.mako") \
+        receipt_text = lookup.get_template("text.mako") \
             .render(**template_data)
-        receiptHTML = lookup.get_template('html.mako') \
+        receipt_html = lookup.get_template('html.mako') \
             .render(**template_data)
         requests.post("https://api.mailgun.net/v3/uqcs.org.au/messages",
                       auth=('api', os.environ.get("MAILGUN_API_KEY")),
@@ -176,24 +177,20 @@ class Order(object):
                           'from': 'receipts@uqcs.org.au',
                           'to': self.email,
                           'bcc': "receipts@uqcs.org.au",
-                          'text': receiptText,
-                          'html': premailer.transform(receiptHTML),
+                          'text': receipt_text,
+                          'html': premailer.transform(receipt_html),
                           'subject': "2018 Shirt Pre-order",
                       })
 
     def notify_slack(self):
         plural = 's' if len(self.shirts) != 1 else ''
-        message = "\n".join([
-            "Order for {n} shirt{plural} by {s.first_name} {s.last_name} ({s.email})".format(s=self, n=len(self.shirts), plural=plural)
-        ] + [
-            "\t {sh.style} {sh.size} ({sh.colour})".format(sh=shirt)
-            for shirt in self.shirts
-        ])
+        message = f':tada: :tshirt: Someone just ordered {len(shirts)} shirt{plural}! :tshirt: :tada:'
         requests.post(os.environ.get("SLACK_HOOK_URL"), data={
             'payload': json.dumps({
                 'text': message
             })
         })
+
 
 @app.route("/", methods=["GET", "POST"])
 def form():
@@ -228,6 +225,7 @@ def form():
         stripe_public_key=os.environ.get("STRIPE_PUBLIC_KEY", 'pk_test_D7aaK6LbIHvw56Dp5qgr74hG')
     )
 
+
 @app.route("/confirmed")
 def confirmed():
     return lookup.get_template("confirmed.mako").render()
@@ -250,5 +248,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    import sys
-    main(sys.argv)
+    from sys import argv
+    main(argv)
